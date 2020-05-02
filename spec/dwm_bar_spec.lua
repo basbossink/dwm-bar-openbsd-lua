@@ -1,0 +1,8 @@
+describe('timestamp', function()
+	require('dwm_bar')
+	it('should return a complete formatted date and time', function()
+		local actual = timestamp()
+		print("'" .. actual .. "'")
+		assert.is.not_falsy(actual)
+	end)
+end)
