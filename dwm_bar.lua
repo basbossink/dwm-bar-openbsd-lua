@@ -1,29 +1,29 @@
 require('util')
 
-local delim=" | "
+local delim="|"
 
-function timestamp() 
-	local command = "date +'wk %U.%u" .. delim .. "%a" .. delim .. "%F"
+function timestamp()
+	local command = "date +'wk%U.%u" .. delim .. "%a" .. delim .. "%F"
 	.. delim .. "%T%z'"
 	return os.capture(command)
 end
 
-function plugged_in() 
+function plugged_in()
 	local command = "apm -a"
 	local plugged_in_state = "Unknown"
 	local result = os.capture(command)
 	if "1" == result then
-		plugged_in_state = "Plugged in"
+		plugged_in_state = "C"
 	elseif "0" == result then
-		plugged_in_state = "On battery"
+		plugged_in_state = "D"
 	elseif "2" == result then
-		plugged_in_state = "On backup power"
+		plugged_in_state = "Back."
 	end
 	return plugged_in_state
 end
 
 function power_percentage_left()
-	return "Battery left: " .. os.capture("apm -l") .. "%"
+	return "B " .. os.capture("apm -l") .. "%"
 end
 
 function memory()
@@ -40,7 +40,7 @@ function memory()
 	local used = as_percentage(from_MB_to_B(tonumber(used_str)),usermem)
 	local available = as_percentage(from_MB_to_B(tonumber(available_str)),usermem)
 	local result = string.format(
-		"Active Virt. Mem.: %.1f%%%sFree Virt. Mem.: %.1f%%", 
+		"AVM %.1f%%%sFVM %.1f%%",
 		used,
 		delim,
 		available)
