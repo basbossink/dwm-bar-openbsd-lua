@@ -28,7 +28,7 @@ function strip_last_char(input)
 	return string.sub(input, 1, -2)
 end
 
-function from_MB_to_B(megabytes) 
+function from_MB_to_B(megabytes)
 	return megabytes * 1024 * 1024
 end
 

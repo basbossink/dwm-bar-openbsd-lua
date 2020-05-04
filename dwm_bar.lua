@@ -2,6 +2,23 @@ require('util')
 
 local delim="|"
 
+function network()
+	local command = "netstat -i -b -n -h -f inet -s -I iwm0"
+	local result = os.capture_lines(command)
+	local bandwidth = result[#result]
+	local split = to_array(string.gmatch(bandwidth, "%S+"))
+	return "iwm0: " .. split[4] .. " D " .. split[5] .. " U " .. split[#split]
+end
+
+function cpu()
+	local command = "top -d 1 -s 0 -1 -u"
+	local result = os.capture_lines(command)
+	-- 2   CPUs:
+	local cpu_line = strip_prefix_of(result[3], 10)
+	local split = to_array(string.gmatch(cpu_line, "[^, ]+"))
+	return "CPU U " .. split[1] .." I ".. split[#split-1]
+end
+
 function memory()
 	local command = "vmstat -c 1 -w 0"
 	local result = os.capture_lines(command)
@@ -54,7 +71,11 @@ end
 function continuously_update_xroot_name()
 	while true do
 		local new_value = string.format(
-		"%s%s%s%s%s%s%s",
+		"%s%s%s%s%s%s%s%s%s%s%s",
+		network(),
+		delim,
+		cpu(),
+		delim,
 		memory(),
 		delim,
 		plugged_in(),
