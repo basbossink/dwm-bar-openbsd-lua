@@ -2,10 +2,25 @@ require('util')
 
 local delim="|"
 
-function timestamp()
-	local command = "date +'wk%U.%u" .. delim .. "%a" .. delim .. "%F"
-	.. delim .. "%T%z'"
-	return os.capture(command)
+function memory()
+	local command = "vmstat -c 1 -w 0"
+	local result = os.capture_lines(command)
+	local last = result[#result]
+	local matches = to_array(string.gmatch(last, "%S+"))
+	local usermem = tonumber(
+		strip_prefix(
+			os.capture("sysctl hw.usermem"),
+			"hw.usermem="))
+	local used_str = strip_last_char(matches[3])
+	local available_str = strip_last_char(matches[4])
+	local used = as_percentage(from_MB_to_B(tonumber(used_str)),usermem)
+	local available = as_percentage(from_MB_to_B(tonumber(available_str)),usermem)
+	local result = string.format(
+		"AVM %.1f%%%sFVM %.1f%%",
+		used,
+		delim,
+		available)
+	return result
 end
 
 function plugged_in()
@@ -26,25 +41,10 @@ function power_percentage_left()
 	return "B " .. os.capture("apm -l") .. "%"
 end
 
-function memory()
-	local command = "vmstat -c 1 -w 0"
-	local result = os.capture_lines(command)
-	local last = result[#result]
-	local matches = to_array(string.gmatch(last, "%S+"))
-	local usermem = tonumber(
-		strip_prefix(
-			os.capture("sysctl hw.usermem"),
-			"hw.usermem="))
-	local used_str = strip_last_char(matches[3])
-	local available_str = strip_last_char(matches[4])
-	local used = as_percentage(from_MB_to_B(tonumber(used_str)),usermem)
-	local available = as_percentage(from_MB_to_B(tonumber(available_str)),usermem)
-	local result = string.format(
-		"AVM %.1f%%%sFVM %.1f%%",
-		used,
-		delim,
-		available)
-	return result
+function timestamp()
+	local command = "date +'wk%U.%u" .. delim .. "%a" .. delim .. "%F"
+	.. delim .. "%T%z'"
+	return os.capture(command)
 end
 
 function update_xroot_name(value)
