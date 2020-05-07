@@ -13,10 +13,9 @@ end
 function cpu()
 	local command = "top -d 1 -s 0 -1 -u"
 	local result = os.capture_lines(command)
-	-- 2   CPUs:
-	local cpu_line = strip_prefix_of(result[3], 10)
-	local split = to_array(string.gmatch(cpu_line, "[^, ]+"))
-	return "CPU U " .. split[1] .." I ".. split[#split-1]
+	local load_averages = result[1]
+	local split = to_array(string.gmatch(load_averages, "[%d.]+"))
+	return "L.Avg. " .. split[1] .. ", " .. split[2] .. ", " .. split[3]
 end
 
 function memory()
